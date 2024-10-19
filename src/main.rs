@@ -1,5 +1,7 @@
+use regex::Regex;
+
 fn main() {
-    let result: Result<&str, &str> = checker("hello");
+    let result: Result<&str, &str> = checker("-1.992");
     match result {
         Ok(r) => println!("{}", r),
         Err(e) => println!("Error: {}", e),
@@ -7,9 +9,11 @@ fn main() {
 }
 
 fn checker(s: &str) -> Result<&str, &str> {
-    if s == "hello" {
+    let num_re: Regex = Regex::new(r"^-?[0-9]+(.[0-9]*)?$").unwrap();
+
+    if num_re.is_match(s) {
         return Ok(s);
     } else {
-        return Err(r#"Not "hello""#);
+        return Err(r#"Not a number"#);
     }
 }
