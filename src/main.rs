@@ -4,9 +4,9 @@ mod token;
 use lexer::lexer;
 use token::Token;
 
-fn main() -> Result<(), String> {
-    // let text: &str = " 32  -1.992 +\n";
-    let text: &str = " 32  -1.992  3. ";
+fn main() {
+    let text: &str = " 32  -1.992 +\n";
+    // let text: &str = " 32  -1.992  3. "; // onvalid token test
     let result: Result<Vec<Token>, String> = lexer(text);
     match result {
         Ok(tokens) => {
@@ -15,9 +15,8 @@ fn main() -> Result<(), String> {
             }
         }
         Err(e) => {
-            return Err(format!("In lexer: {}", e));
+            eprintln!("Error: In lexer: {}", e);
+            std::process::exit(1);
         }
     }
-
-    Ok(())
 }

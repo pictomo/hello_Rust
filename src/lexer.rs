@@ -1,42 +1,51 @@
 use crate::token::Token;
-
 use regex::Regex;
 
-pub fn lexer(s_: &str) -> Result<Vec<Token>, String> {
-    let mut s: String = s_.to_string();
-    let mut tokens: Vec<Token> = Vec::new();
-    let token_dict: Vec<(&str, &str)> = vec![
-        ("NUMBER", r"-?([0-9]+)(.[0-9]+)?"),
-        ("PLUS", r"\+"),
-        ("MINUS", r"-"),
-        ("MUL", r"\*"),
-        ("DIV", r"/"),
-        ("LPAREN", r"\("),
-        ("RPAREN", r"\)"),
-        ("UNKNOWN", r"."), // for文の条件式のなかに入れたい
+// 先頭マッチ用の正規表現を作成
+fn compile_pattern(pattern: &str) -> Regex {
+    Regex::new(&format!("^{}", pattern)).unwrap()
+}
+
+pub fn lexer(input: &str) -> Result<Vec<Token>, String> {
+    // トークン定義を定数として定義
+    // 後々staticにしたい
+    let TOKEN_PATTERNS: &[(&str, Regex)] = &[
+        ("NUMBER", compile_pattern(r"-?([0-9]+)(\.[0-9]+)?")),
+        ("PLUS", compile_pattern(r"\+")),
+        ("MINUS", compile_pattern(r"-")),
+        ("MUL", compile_pattern(r"\*")),
+        ("DIV", compile_pattern(r"/")),
+        ("LPAREN", compile_pattern(r"\(")),
+        ("RPAREN", compile_pattern(r"\)")),
     ];
-    loop {
-        s = s.trim().to_string();
-        if s.len() == 0 {
+
+    let mut tokens = Vec::new();
+    let mut remaining = input.trim_start();
+
+    while !remaining.is_empty() {
+        remaining = remaining.trim_start();
+        if remaining.is_empty() {
             break;
         }
 
-        for (token, pattern) in token_dict.iter() {
-            if let Some(match_item) = Regex::new(&["^", *pattern].concat()).unwrap().find(&s) {
+        let mut matched = false;
+        for (token_type, pattern) in TOKEN_PATTERNS.iter() {
+            if let Some(mat) = pattern.find(remaining) {
                 tokens.push(Token {
-                    token_type: token.to_string(),
-                    token_value: match_item.as_str().to_string(),
+                    token_type: token_type.to_string(),
+                    token_value: mat.as_str().to_string(),
                 });
-                s = s[match_item.end()..].to_string();
+                remaining = &remaining[mat.end()..];
+                matched = true;
                 break;
             }
         }
-        if tokens[tokens.len() - 1].token_type == "UNKNOWN" {
-            return Err(format!(
-                "Invalid token \"{}\"",
-                tokens[tokens.len() - 1].token_value
-            ));
+
+        if !matched {
+            let invalid_char = remaining.chars().next().unwrap();
+            return Err(format!("Invalid token \"{}\"", invalid_char));
         }
     }
-    return Ok(tokens);
+
+    Ok(tokens)
 }
