@@ -1,4 +1,4 @@
-use crate::data_type::Token;
+use crate::token::Token;
 
 use regex::Regex;
 
@@ -6,7 +6,7 @@ pub fn lexer(s_: &str) -> Result<Vec<Token>, String> {
     let mut s: String = s_.to_string();
     let mut tokens: Vec<Token> = Vec::new();
     let token_dict: Vec<(&str, &str)> = vec![
-        ("NUMBER", r"-?[0-9]+(.[0-9]+)?"),
+        ("NUMBER", r"-?([0-9]+)(.[0-9]+)?"),
         ("PLUS", r"\+"),
         ("MINUS", r"-"),
         ("MUL", r"\*"),
