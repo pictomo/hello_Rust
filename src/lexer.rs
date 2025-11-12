@@ -43,7 +43,7 @@ pub fn lexer(input: &str) -> Result<Vec<Token>, String> {
 
         if !matched {
             let invalid_char = remaining.chars().next().unwrap();
-            return Err(format!("Invalid token \"{}\"", invalid_char));
+            return Err(format!("Unknown token \"{}\"", invalid_char));
         }
     }
 
