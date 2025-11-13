@@ -1,4 +1,5 @@
 use crate::token::Token;
+use crate::token::TokenType;
 
 pub fn parser(mut tokens: Vec<Token>) -> Result<(), String> {
     expr(&mut tokens)?;
@@ -21,11 +22,11 @@ fn expr_(tokens: &mut Vec<Token>) -> Result<(), String> {
         return Ok(());
     }
 
-    match tokens[0].token_type.as_str() {
-        "PLUS" => {
+    match tokens[0].token_type {
+        TokenType::PLUS => {
             tokens.remove(0);
         }
-        "MINUS" => {
+        TokenType::MINUS => {
             tokens.remove(0);
         }
         _ => return Ok(()),
@@ -48,11 +49,11 @@ fn term_(tokens: &mut Vec<Token>) -> Result<(), String> {
         return Ok(());
     }
 
-    match tokens[0].token_type.as_str() {
-        "MUL" => {
+    match tokens[0].token_type {
+        TokenType::MUL => {
             tokens.remove(0);
         }
-        "DIV" => {
+        TokenType::DIV => {
             tokens.remove(0);
         }
         _ => {
@@ -66,15 +67,15 @@ fn term_(tokens: &mut Vec<Token>) -> Result<(), String> {
 }
 
 fn num(tokens: &mut Vec<Token>) -> Result<(), String> {
-    match tokens[0].token_type.as_str() {
-        "NUMBER" => {
+    match tokens[0].token_type {
+        TokenType::NUMBER => {
             tokens.remove(0);
         }
-        "LPAREN" => {
+        TokenType::LPAREN => {
             tokens.remove(0);
             expr(tokens)?;
-            match tokens[0].token_type.as_str() {
-                "RPAREN" => {
+            match tokens[0].token_type {
+                TokenType::RPAREN => {
                     tokens.remove(0);
                 }
                 _ => {
