@@ -11,7 +11,7 @@ pub fn lexer(input: &str) -> Result<Vec<Token>, String> {
     // トークン定義を定数として定義
     // 後々staticにしたい
     let TOKEN_PATTERNS: &[(TokenType, Regex)] = &[
-        (TokenType::NUMBER, compile_pattern(r"-?([0-9]+)(\.[0-9]+)?")),
+        (TokenType::NUMBER, compile_pattern(r"([0-9]+)(\.[0-9]+)?")),
         (TokenType::PLUS, compile_pattern(r"\+")),
         (TokenType::MINUS, compile_pattern(r"-")),
         (TokenType::MUL, compile_pattern(r"\*")),
@@ -40,8 +40,8 @@ pub fn lexer(input: &str) -> Result<Vec<Token>, String> {
         }
 
         if !matched {
-            let invalid_char = remaining.chars().next().unwrap();
-            return Err(format!("Unknown token \"{}\"", invalid_char));
+            let invalid_char = remaining.chars().take(3).collect::<String>();
+            return Err(format!("Unknown token \"{}\"...", invalid_char));
         }
     }
 
