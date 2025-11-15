@@ -1,10 +1,6 @@
-mod lexer;
-mod parser;
-mod token;
-
-use lexer::lexer;
-use parser::parser;
-use token::Token;
+use calculator_rust::lexer::lexer;
+use calculator_rust::parser::parser;
+use calculator_rust::token::Token;
 
 fn main() {
     let mut text: &str = " (32 + -1.992) + 56 * 09 / 30.0 - 12\n";

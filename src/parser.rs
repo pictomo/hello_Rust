@@ -1,5 +1,4 @@
-use crate::token::Token;
-use crate::token::TokenType;
+use crate::token::*;
 
 pub fn parser(mut tokens: Vec<Token>) -> Result<f64, String> {
     let val = expr(&mut tokens)?;

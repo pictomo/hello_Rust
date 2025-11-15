@@ -1,5 +1,4 @@
-use crate::token::Token;
-use crate::token::TokenType;
+use crate::token::*;
 use regex::Regex;
 
 // 先頭マッチ用の正規表現を作成
