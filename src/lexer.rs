@@ -1,15 +1,14 @@
 use crate::token::*;
 use regex::Regex;
+use std::sync::LazyLock;
 
 // 先頭マッチ用の正規表現を作成
 fn compile_pattern(pattern: &str) -> Regex {
     Regex::new(&format!("^{}", pattern)).unwrap()
 }
 
-pub fn lexer(input: &str) -> Result<Vec<Token>, String> {
-    // トークン定義を定数として定義
-    // 後々staticにしたい
-    let TOKEN_PATTERNS: &[(TokenType, Regex)] = &[
+static TOKEN_PATTERNS: LazyLock<Vec<(TokenType, Regex)>> = LazyLock::new(|| {
+    vec![
         (TokenType::NUMBER, compile_pattern(r"([0-9]+)(\.[0-9]+)?")),
         (TokenType::PLUS, compile_pattern(r"\+")),
         (TokenType::MINUS, compile_pattern(r"-")),
@@ -17,8 +16,10 @@ pub fn lexer(input: &str) -> Result<Vec<Token>, String> {
         (TokenType::DIV, compile_pattern(r"/")),
         (TokenType::LPAREN, compile_pattern(r"\(")),
         (TokenType::RPAREN, compile_pattern(r"\)")),
-    ];
+    ]
+});
 
+pub fn lexer(input: &str) -> Result<Vec<Token>, String> {
     let mut tokens = Vec::new();
     let mut remaining = input.trim();
 
