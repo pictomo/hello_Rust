@@ -1,3 +1,5 @@
+// cargo run --bin tester
+
 use calculator_rust::lexer::lexer;
 use calculator_rust::parser::parser;
 use calculator_rust::token::Token;
