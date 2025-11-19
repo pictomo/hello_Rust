@@ -8,47 +8,19 @@ pub fn parser(mut tokens: Vec<Token>) -> Result<f64, String> {
     Ok(val)
 }
 
-struct RightReturn {
-    op: Option<TokenType>,
-    right: Option<f64>,
-}
-
 fn expr(tokens: &mut Vec<Token>) -> Result<f64, String> {
-    let val: f64;
-
     let left = term(tokens)?;
 
-    let right_return = expr_(tokens)?;
+    let val = expr_(tokens, left)?;
 
-    match right_return {
-        Some(rr) => {
-            let op = rr.op.unwrap();
-            let right = rr.right.unwrap();
-            match op {
-                TokenType::PLUS => {
-                    val = left + right;
-                }
-                TokenType::MINUS => {
-                    val = left - right;
-                }
-                _ => {
-                    return Err("Unexpected Error".to_string());
-                }
-            }
-        }
-        None => {
-            val = left;
-        }
-    }
     Ok(val)
 }
 
-fn expr_(tokens: &mut Vec<Token>) -> Result<Option<RightReturn>, String> {
+fn expr_(tokens: &mut Vec<Token>, left_val: f64) -> Result<f64, String> {
     if tokens.is_empty() {
-        return Ok(None);
+        return Ok(left_val);
     }
     let op: TokenType;
-    let right: f64;
 
     match tokens[0].token_type {
         TokenType::PLUS => {
@@ -59,74 +31,39 @@ fn expr_(tokens: &mut Vec<Token>) -> Result<Option<RightReturn>, String> {
             tokens.remove(0);
             op = TokenType::MINUS;
         }
-        _ => return Ok(None),
+        _ => return Ok(left_val),
     }
 
-    let pre_right = term(tokens)?;
-    let right_right_return = expr_(tokens)?;
-    match right_right_return {
-        Some(rr) => {
-            let next_op = rr.op.unwrap();
-            let next_right = rr.right.unwrap();
-            match next_op {
-                TokenType::PLUS => {
-                    right = pre_right + next_right;
-                }
-                TokenType::MINUS => {
-                    right = pre_right - next_right;
-                }
-                _ => {
-                    return Err("Unexpected Error".to_string());
-                }
-            }
-        }
-        None => {
-            right = pre_right;
-        }
-    }
-
-    Ok(Some(RightReturn {
-        op: Some(op),
-        right: Some(right),
-    }))
-}
-
-fn term(tokens: &mut Vec<Token>) -> Result<f64, String> {
+    let right_val = term(tokens)?;
     let val: f64;
-
-    let left = num(tokens)?;
-
-    let right_return = term_(tokens)?;
-
-    match right_return {
-        Some(rr) => {
-            let op = rr.op.unwrap();
-            let right = rr.right.unwrap();
-            match op {
-                TokenType::MUL => {
-                    val = left * right;
-                }
-                TokenType::DIV => {
-                    val = left / right;
-                }
-                _ => {
-                    return Err("Unexpected Error".to_string());
-                }
-            }
+    match op {
+        TokenType::PLUS => {
+            val = expr_(tokens, left_val + right_val)?;
         }
-        None => {
-            val = left;
+        TokenType::MINUS => {
+            val = expr_(tokens, left_val - right_val)?;
+        }
+        _ => {
+            return Err("Unexpected Error".to_string());
         }
     }
+
     Ok(val)
 }
 
-fn term_(tokens: &mut Vec<Token>) -> Result<Option<RightReturn>, String> {
+fn term(tokens: &mut Vec<Token>) -> Result<f64, String> {
+    let left = num(tokens)?;
+
+    let val = term_(tokens, left)?;
+
+    Ok(val)
+}
+
+fn term_(tokens: &mut Vec<Token>, left_val: f64) -> Result<f64, String> {
     if tokens.is_empty() {
-        return Ok(None);
+        return Ok(left_val);
     }
     let op: TokenType;
-    let right: f64;
 
     match tokens[0].token_type {
         TokenType::MUL => {
@@ -137,36 +74,24 @@ fn term_(tokens: &mut Vec<Token>) -> Result<Option<RightReturn>, String> {
             tokens.remove(0);
             op = TokenType::DIV;
         }
-        _ => return Ok(None),
+        _ => return Ok(left_val),
     }
 
-    let pre_right = num(tokens)?;
-    let right_right_return = term_(tokens)?;
-    match right_right_return {
-        Some(rr) => {
-            let next_op = rr.op.unwrap();
-            let next_right = rr.right.unwrap();
-            match next_op {
-                TokenType::MUL => {
-                    right = pre_right * next_right;
-                }
-                TokenType::DIV => {
-                    right = pre_right / next_right;
-                }
-                _ => {
-                    return Err("Unexpected Error".to_string());
-                }
-            }
+    let right_val = num(tokens)?;
+    let val: f64;
+    match op {
+        TokenType::MUL => {
+            val = term_(tokens, left_val * right_val)?;
         }
-        None => {
-            right = pre_right;
+        TokenType::DIV => {
+            val = term_(tokens, left_val / right_val)?;
+        }
+        _ => {
+            return Err("Unexpected Error".to_string());
         }
     }
 
-    Ok(Some(RightReturn {
-        op: Some(op),
-        right: Some(right),
-    }))
+    Ok(val)
 }
 
 fn num(tokens: &mut Vec<Token>) -> Result<f64, String> {

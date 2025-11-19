@@ -16,9 +16,9 @@ fn main() {
     let result: Result<Vec<Token>, String> = lexer(text);
     match result {
         Ok(tokens) => {
-            // for token in tokens.iter() {
-            //     println!("{:?} {}", token.token_type, token.token_value)
-            // }
+            for token in tokens.iter() {
+                println!("{:?} {}", token.token_type, token.token_value)
+            }
             match parser(tokens) {
                 Ok(val) => {
                     println!("{}", val);
